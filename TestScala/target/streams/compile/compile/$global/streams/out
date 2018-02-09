@@ -1,0 +1,97 @@
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:3:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.SparkConf[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:4:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.SparkContext[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:5:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.sql.SQLContext[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:6:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.streaming.Seconds[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:7:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.streaming.StreamingContext[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:8:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.streaming.kafka010.KafkaUtils[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:9:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.streaming.kafka010.PreferConsistent[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:10:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.streaming.kafka010.Subscribe[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:11:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.streaming.kafka010.ConsumerStrategies[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:12:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.streaming.kafka010.LocationStrategies[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:13:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.spark.streaming.kafka010.DirectKafkaInputDStream[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:14:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.kafka.common.serialization.StringDeserializer[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:16:8: not found: object kafka[0m
+[0m[[0m[31merror[0m] [0m[0mimport kafka.serializer.StringDecoder[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:17:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.hadoop.hbase.HBaseConfiguration[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:18:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.hadoop.hbase.client.HTable[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:19:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.hadoop.hbase.util.Bytes[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:20:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.hadoop.hbase.client.Put[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:22:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.solr.client.solrj._[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:23:12: object apache is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.apache.solr.client.solrj.impl._[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:32:17: not found: type HttpSolrClient[0m
+[0m[[0m[31merror[0m] [0m[0m    val server :HttpSolrClient = {[0m
+[0m[[0m[31merror[0m] [0m[0m                ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:34:9: not found: value HttpSolrClient[0m
+[0m[[0m[31merror[0m] [0m[0m    new HttpSolrClient.Builder(urlString).build()  [0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:41:20: not found: type SparkConf[0m
+[0m[[0m[31merror[0m] [0m[0m    val conf = new SparkConf()[0m
+[0m[[0m[31merror[0m] [0m[0m                   ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:45:19: not found: type StreamingContext[0m
+[0m[[0m[31merror[0m] [0m[0m    val ssc = new StreamingContext(conf, Seconds(20))[0m
+[0m[[0m[31merror[0m] [0m[0m                  ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:45:42: not found: value Seconds[0m
+[0m[[0m[31merror[0m] [0m[0m    val ssc = new StreamingContext(conf, Seconds(20))[0m
+[0m[[0m[31merror[0m] [0m[0m                                         ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:46:14: not found: value SparkContext[0m
+[0m[[0m[31merror[0m] [0m[0m    val sc = SparkContext.getOrCreate(conf)[0m
+[0m[[0m[31merror[0m] [0m[0m             ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:47:22: not found: value SQLContext[0m
+[0m[[0m[31merror[0m] [0m[0m    val sqlContext = SQLContext.getOrCreate(sc)[0m
+[0m[[0m[31merror[0m] [0m[0m                     ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:53:21: not found: value HBaseConfiguration[0m
+[0m[[0m[31merror[0m] [0m[0m    val confHBase = HBaseConfiguration.create()[0m
+[0m[[0m[31merror[0m] [0m[0m                    ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:62:39: not found: type StringDeserializer[0m
+[0m[[0m[31merror[0m] [0m[0m        "key.deserializer" -> classOf[StringDeserializer],[0m
+[0m[[0m[31merror[0m] [0m[0m                                      ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:63:41: not found: type StringDeserializer[0m
+[0m[[0m[31merror[0m] [0m[0m        "value.deserializer" -> classOf[StringDeserializer],[0m
+[0m[[0m[31merror[0m] [0m[0m                                        ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:70:20: not found: value KafkaUtils[0m
+[0m[[0m[31merror[0m] [0m[0m    val messages = KafkaUtils.createDirectStream[String, String]([0m
+[0m[[0m[31merror[0m] [0m[0m                   ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:71:12: not found: value LocationStrategies[0m
+[0m[[0m[31merror[0m] [0m[0m      ssc, LocationStrategies.PreferConsistent, ConsumerStrategies.Subscribe[String, String](topics, kafkaParams))[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\prozek\eclipse-workspace\TestScala\src\main\scala\TestMain.scala:71:49: not found: value ConsumerStrategies[0m
+[0m[[0m[31merror[0m] [0m[0m      ssc, LocationStrategies.PreferConsistent, ConsumerStrategies.Subscribe[String, String](topics, kafkaParams))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                ^[0m
+[0m[[0m[31merror[0m] [0m[0m32 errors found[0m
