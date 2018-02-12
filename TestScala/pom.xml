@@ -72,10 +72,6 @@
   		<groupId>org.apache.solr</groupId>
   		<artifactId>solr-solrj</artifactId>
   	</dependency>
-  	  	<dependency>
-  	<groupId>com.github.takezoe</groupId>
-  	<artifactId>solr-scala-client</artifactId>
-  	</dependency>
   </dependencies>
   <dependencyManagement>
   	<dependencies>
@@ -146,11 +142,6 @@
   		  			<artifactId>solr-solrj</artifactId>
   		  			<version>6.5.0</version>
   		  		</dependency>
-  		  		  		<dependency>
-  			<groupId>com.github.takezoe</groupId>
-  			<artifactId>solr-scala-client</artifactId>
-  			<version>0.0.17</version>
-  		</dependency>
   	</dependencies>
   </dependencyManagement>
 </project>
