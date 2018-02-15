@@ -18,6 +18,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.hbase.client.HTable
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.client.Put
+import org.apache.solr.common._
 
 
 object TestMain{
@@ -61,7 +62,21 @@ object TestMain{
     val splitData = data.flatMap(_.split(" "))
     splitData.foreachRDD(p => p.toDF().write.mode("append").text("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark"))
     splitData.foreachRDD(p => p.saveAsTextFile("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark\\save"))
-//    WriteDataSolr.client.add(Map("id"->"010", "manu" -> "Spark", "name" -> "Solr"))
+
+//  Write data to Solr
+    
+    val doc = new SolrInputDocument()
+    def getSolrDocument(): SolrInputDocument = {
+      val document = new SolrInputDocument()
+      document.addField("id", "8")
+      document.addField("name", "imie8")
+      document.addField("age", "38")
+      document.addField("addr", "Adres8")
+      document
+    }
+    val firstClient = WriteDataSolr.client.add(getSolrDocument)
+    WriteDataSolr.client.commit
+    
     
 // Start the computation   
     ssc.start()

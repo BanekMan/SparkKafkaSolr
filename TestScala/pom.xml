@@ -81,11 +81,6 @@
   			<version>2.2.1</version>
   		</dependency>
   		<dependency>
-  		<groupId>com.github.takezoe</groupId>
-  		<artifactId>solr-scala-client</artifactId>
-  		<version>0.0.17</version>
-  		</dependency>
-  		<dependency>
   			<groupId>org.apache.spark</groupId>
   			<artifactId>spark-launcher_2.11</artifactId>
   			<version>2.2.1</version>
