@@ -25,7 +25,6 @@ import scala.collection.JavaConversions.asJavaCollection
 import org.apache.spark.streaming.dstream.DStream
 
 
-
 object TestMain{
   def main(args: Array[String]): Unit = {
     
@@ -65,6 +64,10 @@ object TestMain{
     val data =  messages.map(record => record.value()) 
 //    data.foreachRDD(x =>print(x))
     val splitData = data.map(_.split("""\|\|"""))
+    
+// Write DStrem to text document
+    data.foreachRDD(p => p.toDF().write.mode("append").text("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark"))
+    data.foreachRDD(p => p.saveAsTextFile("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark\\save"))
 
    
 //  Creating Solr Document 
@@ -84,29 +87,25 @@ object TestMain{
 //  Write DataFrame to SolrDocument and add to Solr
     def writeToCache(df: DataFrame): Unit = {
       val solrDocsRDD= df.rdd.map { x=> getSolrDocument(x.getAs[String]("id"),x.getAs[String]("date"), x.getAs[String]("requestType"), x.getAs[String]("requestPage"), x.getAs[String]("httpProtocolVersion"), x.getAs[String]("responseCode"), x.getAs[String]("responseSize"), x.getAs[String]("userAgent"))}
-      val print = solrDocsRDD.take(1)
-      println(print)
       solrDocsRDD.foreachPartition{ partition => {       
         val batch = new ArrayBuffer[SolrInputDocument]()
         while(partition.hasNext){
         batch += partition.next()
-        WriteDataSolr.client.add(asJavaCollection(batch))
-        WriteDataSolr.client.commit 
+        WriteDataSolr.client.add(asJavaCollection(batch))  
         }
         }             
       } 
-    }
-
+      WriteDataSolr.client.commit 
+    }  
     
  //    Run WriteToCache foreachRDD
-
        splitData.foreachRDD({row=>
           val dF4 = row.map{x=> (x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7))}
           val dF5 = dF4.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
          dF5.show(false)
-         dF5.printSchema() 
-         val writeSolr =  writeToCache(dF5)})
-          
+         dF5.printSchema()
+          RuleEngine.runRules(dF5)
+          val writeSolr =  writeToCache(dF5)})         
           
 //    Start the computation    
         ssc.start()
