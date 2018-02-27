@@ -12,7 +12,7 @@ object countResponseCode503 {
    * number of occurrences.
    */
       def countCode503(newDataFrame: DataFrame){
-          val counterCode = newDataFrame.filter(r => (r(5) =="  503 "))
+          val counterCode = newDataFrame.filter(r => (r(5) ==503))
          .count()
      println("Number of occurrences for code 503 = " + counterCode.toString())
   }

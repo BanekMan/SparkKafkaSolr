@@ -13,7 +13,7 @@ object countResponseCode404 {
    * number of occurrences.
    */
   def countCode404(newDataFrame: DataFrame){
-          val counterCode = newDataFrame.filter(r => (r(5) =="  404 "))
+          val counterCode = newDataFrame.filter(r => (r(5) ==404))
          .count()
      println("Number of occurrences for code 404 = " + counterCode.toString())
   }

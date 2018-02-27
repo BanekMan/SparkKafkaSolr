@@ -71,7 +71,7 @@ object TestMain{
 
    
 //  Creating Solr Document 
-    def getSolrDocument(id: String, date: String, requestType: String, requestPage: String, httpProtocolVersion: String, responseCode: String, responseSize: String, userAgent: String): SolrInputDocument = {
+    def getSolrDocument(id: String, date: String, requestType: String, requestPage: String, httpProtocolVersion: String, responseCode: Int, responseSize: Int, userAgent: String): SolrInputDocument = {
       val document = new SolrInputDocument()
       document.addField("id", id)
       document.addField("date", date)
@@ -86,7 +86,7 @@ object TestMain{
   
 //  Write DataFrame to SolrDocument and add to Solr
     def writeToCache(df: DataFrame): Unit = {
-      val solrDocsRDD= df.rdd.map { x=> getSolrDocument(x.getAs[String]("id"),x.getAs[String]("date"), x.getAs[String]("requestType"), x.getAs[String]("requestPage"), x.getAs[String]("httpProtocolVersion"), x.getAs[String]("responseCode"), x.getAs[String]("responseSize"), x.getAs[String]("userAgent"))}
+      val solrDocsRDD= df.rdd.map { x=> getSolrDocument(x.getAs[String]("id"),x.getAs[String]("date"), x.getAs[String]("requestType"), x.getAs[String]("requestPage"), x.getAs[String]("httpProtocolVersion"), x.getAs[Int]("responseCode"), x.getAs[Int]("responseSize"), x.getAs[String]("userAgent"))}
       solrDocsRDD.foreachPartition{ partition => {       
         val batch = new ArrayBuffer[SolrInputDocument]()
         while(partition.hasNext){
@@ -100,12 +100,14 @@ object TestMain{
     
  //    Run WriteToCache foreachRDD
        splitData.foreachRDD({row=>
-          val dF4 = row.map{x=> (x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7))}
+         if (!row.isEmpty()) {
+          val dF4 = row.map{x=> (x(0),x(1),x(2),x(3),x(4),x(5).toInt,x(6).toInt,x(7))}
+          println(dF4)
           val dF5 = dF4.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
          dF5.show(false)
          dF5.printSchema()
           RuleEngine.runRules(dF5)
-          val writeSolr =  writeToCache(dF5)})         
+          val writeSolr =  writeToCache(dF5)}})         
           
 //    Start the computation    
         ssc.start()

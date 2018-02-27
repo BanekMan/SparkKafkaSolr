@@ -19,7 +19,8 @@ object RuleEngine {
     //  Check code 503 responseCode 
     checkResponseCode404.checkCode404(df)
 //    Show max value for reponseSize
-    OverMaxResponseSize.checkMaxResponseSize200(df)
+    MaxResponseSize200.checkMaxResponseSize200(df)
+    
   }
   
 
