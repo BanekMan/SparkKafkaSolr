@@ -20,25 +20,25 @@ import org.apache.hadoop.hbase.client.HTable
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.client.Put
 import org.apache.solr.common._
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.{ DataFrame, Row }
 import scala.collection.JavaConversions.asJavaCollection
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.log4j.Logger
 
-object TestMain{
-  
-      val log = Logger.getLogger("TestMain")
-    
+object TestMain {
+
+  val log = Logger.getLogger("TestMain")
+
   def main(args: Array[String]): Unit = {
-    
-  log.debug("Entering application.")
-  log.info("Start Application TestMain.")
-    
-//  Mocking Hadoop claster
-    System.setProperty("hadoop.home.dir", "C:\\hadoop-common-2.2.0-bin-master\\")   
-    
+
+    log.debug("Entering application.")
+    log.info("Start Application TestMain.")
+
+    //  Mocking Hadoop claster
+    System.setProperty("hadoop.home.dir", "C:\\hadoop-common-2.2.0-bin-master\\")
+
     //  Create Streaming values
-    
+
     val conf = new SparkConf()
       .setAppName("Learning Spark")
       .setMaster("local[*]")
@@ -48,35 +48,34 @@ object TestMain{
     val sqlContext = SQLContext.getOrCreate(sc)
 
     import sqlContext.implicits._
-    
-//  Create Kafka parameters for connection for Kafka broker version 0.10.0 or higher
-    
+
+    //  Create Kafka parameters for connection for Kafka broker version 0.10.0 or higher
+
     val brokers = "localhost:9092"
     val topics = Array("test1")
     val kafkaParams = Map[String, Object](
-        "bootstrap.servers" -> brokers,
-        "key.deserializer" -> classOf[StringDeserializer],
-        "value.deserializer" -> classOf[StringDeserializer],
-        "group.id" -> "use_a_separate_group_id_for_each_stream",
-        "auto.offset.reset" -> "latest",
-        "enable.auto.commit" -> (false: java.lang.Boolean))
-        
-// Create direct kafka stream with brokers and topics
-        
+      "bootstrap.servers" -> brokers,
+      "key.deserializer" -> classOf[StringDeserializer],
+      "value.deserializer" -> classOf[StringDeserializer],
+      "group.id" -> "use_a_separate_group_id_for_each_stream",
+      "auto.offset.reset" -> "latest",
+      "enable.auto.commit" -> (false: java.lang.Boolean))
+
+    // Create direct kafka stream with brokers and topics
+
     val messages = KafkaUtils.createDirectStream[String, String](
       ssc, LocationStrategies.PreferConsistent, ConsumerStrategies.Subscribe[String, String](topics, kafkaParams))
 
-// Map and write stream to records in files  
-    val data =  messages.map(record => record.value()) 
-//    data.foreachRDD(x =>print(x))
+    // Map and write stream to records in files
+    val data = messages.map(record => record.value())
+    //    data.foreachRDD(x =>print(x))
     val splitData = data.map(_.split("""\|\|"""))
-    
-// Write DStrem to text document
+
+    // Write DStrem to text document
     data.foreachRDD(p => p.toDF().write.mode("append").text("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark"))
     data.foreachRDD(p => p.saveAsTextFile("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark\\save"))
 
-   
-//  Creating Solr Document 
+    //  Creating Solr Document
     def getSolrDocument(id: String, date: String, requestType: String, requestPage: String, httpProtocolVersion: String, responseCode: Int, responseSize: Int, userAgent: String): SolrInputDocument = {
       val document = new SolrInputDocument()
       document.addField("id", id)
@@ -89,41 +88,44 @@ object TestMain{
       document.addField("userAgent", userAgent)
       document
     }
-  
-//  Write DataFrame to SolrDocument and add to Solr
+
+    //  Write DataFrame to SolrDocument and add to Solr
     def writeToCache(df: DataFrame): Unit = {
-      val solrDocsRDD= df.rdd.map { x=> getSolrDocument(x.getAs[String]("id"),x.getAs[String]("date"), x.getAs[String]("requestType"), x.getAs[String]("requestPage"), x.getAs[String]("httpProtocolVersion"), x.getAs[Int]("responseCode"), x.getAs[Int]("responseSize"), x.getAs[String]("userAgent"))}
-      solrDocsRDD.foreachPartition{ partition => {       
-        val batch = new ArrayBuffer[SolrInputDocument]()
-        println("Writing odcuments to SOLR")
-        while(partition.hasNext){
-        batch += partition.next()
-                WriteDataSolr.client.add(asJavaCollection(batch))  
+      val solrDocsRDD = df.rdd.map { x => getSolrDocument(x.getAs[String]("id"), x.getAs[String]("date"), x.getAs[String]("requestType"), x.getAs[String]("requestPage"), x.getAs[String]("httpProtocolVersion"), x.getAs[Int]("responseCode"), x.getAs[Int]("responseSize"), x.getAs[String]("userAgent")) }
+      solrDocsRDD.foreachPartition { partition =>
+        {
+          val batch = new ArrayBuffer[SolrInputDocument]()
+          println("Writing odcuments to SOLR")
+          while (partition.hasNext) {
+            batch += partition.next()
+            WriteDataSolr.client.add(asJavaCollection(batch))
+          }
         }
-        }             
-      } 
+      }
       WriteDataSolr.client.commit
       println("Documents have been saved to SOLR.")
-    }  
-    
- //    Run WriteToCache foreachRDD
-       splitData.foreachRDD({row=>
-         if (!row.isEmpty()) {
-          val dF4 = row.map{x=> (x(0),x(1),x(2),x(3),x(4),x(5).toInt,x(6).toInt,x(7))}
-          val dF5 = dF4.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
-         dF5.show(1000, false)
-//         dF5.write.format("csv").option("header", "true").save("tabeladF5.csv")
-//         dF5.printSchema()
-          
-//         Run rules for DataFrame
-          RuleEngine.runRules(dF5)
-          val writeSolr =  writeToCache(dF5)}})         
-          
-//    Start the computation    
-          println("Start application")
-          ssc.start()
-//    Await
-          println("StreamingContext started.")
-          ssc.awaitTermination()
+    }
+
+    //    Run WriteToCache foreachRDD
+    splitData.foreachRDD({ row =>
+      if (!row.isEmpty()) {
+        val dF4 = row.map { x => (x(0), x(1), x(2), x(3), x(4), x(5).toInt, x(6).toInt, x(7)) }
+        val dF5 = dF4.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
+        dF5.show(1000, false)
+        //         dF5.write.format("csv").option("header", "true").save("tabeladF5.csv")
+        //         dF5.printSchema()
+
+        //         Run rules for DataFrame
+        RuleEngine.runRules(dF5)
+        val writeSolr = writeToCache(dF5)
+      }
+    })
+
+    //    Start the computation
+    println("Start application")
+    ssc.start()
+    //    Await
+    println("StreamingContext started.")
+    ssc.awaitTermination()
   }
 }
