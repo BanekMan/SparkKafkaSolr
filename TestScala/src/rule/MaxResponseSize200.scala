@@ -11,7 +11,7 @@ object MaxResponseSize200 {
    */
       def checkMaxResponseSize200(newDataFrame: DataFrame){
          val filterCode = newDataFrame.filter(r => (r(5) ==200))
-         filterCode.show()
+//         filterCode.show()
          
          val getRowWithMax = filterCode.select("id", "responseSize")
          val maxRow = getRowWithMax.orderBy(desc("responseSize")).first()

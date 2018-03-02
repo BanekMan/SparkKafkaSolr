@@ -23,10 +23,16 @@ import org.apache.solr.common._
 import org.apache.spark.sql.{DataFrame, Row}
 import scala.collection.JavaConversions.asJavaCollection
 import org.apache.spark.streaming.dstream.DStream
-
+import org.apache.log4j.Logger
 
 object TestMain{
+  
+      val log = Logger.getLogger("TestMain")
+    
   def main(args: Array[String]): Unit = {
+    
+  log.debug("Entering application.")
+  log.info("Start Application TestMain.")
     
 //  Mocking Hadoop claster
     System.setProperty("hadoop.home.dir", "C:\\hadoop-common-2.2.0-bin-master\\")   
@@ -89,29 +95,35 @@ object TestMain{
       val solrDocsRDD= df.rdd.map { x=> getSolrDocument(x.getAs[String]("id"),x.getAs[String]("date"), x.getAs[String]("requestType"), x.getAs[String]("requestPage"), x.getAs[String]("httpProtocolVersion"), x.getAs[Int]("responseCode"), x.getAs[Int]("responseSize"), x.getAs[String]("userAgent"))}
       solrDocsRDD.foreachPartition{ partition => {       
         val batch = new ArrayBuffer[SolrInputDocument]()
+        println("Writing odcuments to SOLR")
         while(partition.hasNext){
         batch += partition.next()
-        WriteDataSolr.client.add(asJavaCollection(batch))  
+                WriteDataSolr.client.add(asJavaCollection(batch))  
         }
         }             
       } 
-      WriteDataSolr.client.commit 
+      WriteDataSolr.client.commit
+      println("Documents have been saved to SOLR.")
     }  
     
  //    Run WriteToCache foreachRDD
        splitData.foreachRDD({row=>
          if (!row.isEmpty()) {
           val dF4 = row.map{x=> (x(0),x(1),x(2),x(3),x(4),x(5).toInt,x(6).toInt,x(7))}
-          println(dF4)
           val dF5 = dF4.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
-         dF5.show(false)
-         dF5.printSchema()
+         dF5.show(1000, false)
+//         dF5.write.format("csv").option("header", "true").save("tabeladF5.csv")
+//         dF5.printSchema()
+          
+//         Run rules for DataFrame
           RuleEngine.runRules(dF5)
           val writeSolr =  writeToCache(dF5)}})         
           
 //    Start the computation    
-        ssc.start()
+          println("Start application")
+          ssc.start()
 //    Await
-        ssc.awaitTermination()
+          println("StreamingContext started.")
+          ssc.awaitTermination()
   }
 }

@@ -12,6 +12,9 @@ object countRepetitionId {
   def countSameId(newDataFrame: DataFrame){
     val singleCol = newDataFrame.select("id") 
     println("Calculations of repetitions for column ID: ")
-    val countRepetition = singleCol.groupBy("id").agg(count("id").as("Repetitions")).orderBy(desc("Repetitions")).show(100)    
+    val countRepetition = singleCol.groupBy("id").agg(count("id").as("Repetitions")).orderBy(desc("Repetitions"))
+    println(countRepetition.count()) 
+    countRepetition.show(countRepetition.count().toInt, false)
+    
   }
 }
