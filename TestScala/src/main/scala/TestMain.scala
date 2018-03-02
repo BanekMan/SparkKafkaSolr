@@ -72,7 +72,7 @@ object TestMain {
     val splitData = data.map(_.split("""\|\|"""))
 
     // Write DStrem to text document
-    data.foreachRDD(p => p.toDF().write.mode("append").text("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark"))
+//    data.foreachRDD(p => p.toDF().write.mode("append").text("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark"))
     data.foreachRDD(p => p.saveAsTextFile("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark\\save"))
 
     //  Creating Solr Document
