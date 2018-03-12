@@ -7,7 +7,6 @@ import org.apache.spark.sql.functions._
 
 //   Count 404 in responseCode
 object countResponseCode404 {
-
   /**
    * Counting all rows with code 404 in column ResponseCode and print in console
    * number of occurrences.

@@ -1,29 +1,17 @@
 package main.scala
 
-import org.apache.spark.SparkConf
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.types._
-import org.apache.spark.streaming.Seconds
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.kafka010.KafkaUtils
-import org.apache.spark.streaming.kafka010.PreferConsistent
-import org.apache.spark.streaming.kafka010.Subscribe
-import org.apache.spark.streaming.kafka010.ConsumerStrategies
-import org.apache.spark.streaming.kafka010.LocationStrategies
-import org.apache.spark.streaming.kafka010.DirectKafkaInputDStream
+import com.redislabs.provider.redis._
 import org.apache.kafka.common.serialization.StringDeserializer
-import scala.collection.mutable.ArrayBuffer
-import kafka.serializer.StringDecoder
-import org.apache.hadoop.hbase.HBaseConfiguration
-import org.apache.hadoop.hbase.client.HTable
-import org.apache.hadoop.hbase.util.Bytes
-import org.apache.hadoop.hbase.client.Put
-import org.apache.solr.common._
-import org.apache.spark.sql.{ DataFrame, Row }
-import scala.collection.JavaConversions.asJavaCollection
-import org.apache.spark.streaming.dstream.DStream
 import org.apache.log4j.Logger
+import org.apache.solr.common._
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
+
+import scala.collection.JavaConversions.asJavaCollection
+import scala.collection.mutable.ArrayBuffer
 
 object TestMain {
 
@@ -35,14 +23,21 @@ object TestMain {
     log.info("Start Application TestMain.")
 
     //  Mocking Hadoop claster
+
     System.setProperty("hadoop.home.dir", "C:\\hadoop-common-2.2.0-bin-master\\")
 
-    //  Create Streaming values
+    //  Create Spark Context values
 
     val conf = new SparkConf()
-      .setAppName("Learning Spark")
-      .setMaster("local[*]")
+      .setAppName("LearningSpark")
+      .setMaster("local")
       .set("spark.driver.allowMultipleContexts", "true")
+      //      redis Ports
+//      .set("redis.host", "127.0.0.1")
+//      .set("redis.port", "6379")
+//      .set("redis.auth", "a43456bc25")
+//      .set("redis.dbNum", "1")
+//      .set("redis.timeout", "1000") 
     val ssc = new StreamingContext(conf, Seconds(20))
     val sc = SparkContext.getOrCreate(conf)
     val sqlContext = SQLContext.getOrCreate(sc)
@@ -64,15 +59,17 @@ object TestMain {
     // Create direct kafka stream with brokers and topics
 
     val messages = KafkaUtils.createDirectStream[String, String](
-      ssc, LocationStrategies.PreferConsistent, ConsumerStrategies.Subscribe[String, String](topics, kafkaParams))
+      ssc, LocationStrategies.PreferConsistent,
+      ConsumerStrategies.Subscribe[String, String](topics, kafkaParams))
 
     // Map and write stream to records in files
+
     val data = messages.map(record => record.value())
-    //    data.foreachRDD(x =>print(x))
     val splitData = data.map(_.split("""\|\|"""))
 
     // Write DStrem to text document
-//    data.foreachRDD(p => p.toDF().write.mode("append").text("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark"))
+    //    data.foreachRDD(p => p.toDF().write.mode("append").text("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark"))
+
     data.foreachRDD(p => p.saveAsTextFile("C:\\kafka_2.12-1.0.0\\Zapis Z Kafki przez Spark\\save"))
 
     //  Creating Solr Document
@@ -91,7 +88,17 @@ object TestMain {
 
     //  Write DataFrame to SolrDocument and add to Solr
     def writeToCache(df: DataFrame): Unit = {
-      val solrDocsRDD = df.rdd.map { x => getSolrDocument(x.getAs[String]("id"), x.getAs[String]("date"), x.getAs[String]("requestType"), x.getAs[String]("requestPage"), x.getAs[String]("httpProtocolVersion"), x.getAs[Int]("responseCode"), x.getAs[Int]("responseSize"), x.getAs[String]("userAgent")) }
+      val solrDocsRDD = df.rdd.map { x =>
+        getSolrDocument(
+          x.getAs[String]("id"),
+          x.getAs[String]("date"),
+          x.getAs[String]("requestType"),
+          x.getAs[String]("requestPage"),
+          x.getAs[String]("httpProtocolVersion"),
+          x.getAs[Int]("responseCode"),
+          x.getAs[Int]("responseSize"),
+          x.getAs[String]("userAgent"))
+      }
       solrDocsRDD.foreachPartition { partition =>
         {
           val batch = new ArrayBuffer[SolrInputDocument]()
@@ -107,24 +114,38 @@ object TestMain {
     }
 
     //    Run WriteToCache foreachRDD
+
     splitData.foreachRDD({ row =>
       if (!row.isEmpty()) {
-        val dF4 = row.map { x => (x(0), x(1), x(2), x(3), x(4), x(5).toInt, x(6).toInt, x(7)) }
-        val dF5 = dF4.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
-        dF5.show(1000, false)
-        //         dF5.write.format("csv").option("header", "true").save("tabeladF5.csv")
-        //         dF5.printSchema()
+        val createRDD = row.map { x => (x(0), x(1), x(2), x(3), x(4), x(5).toInt, x(6).toInt, x(7)) }
+        //        ============================
+        def writeToRedis(dataRDD: RDD[(String, String, String, String, String, Int, Int, String)]) {
 
-        //         Run rules for DataFrame
-        RuleEngine.runRules(dF5)
-        val writeSolr = writeToCache(dF5)
+          //  Special keys RDD
+          //          val keysRDD = sc.fromRedisKeys(Array("id", "rest"), 5)
+          val modRDD = dataRDD.map(x => (x._1, (x._2, x._3, x._4, x._5, x._6.toString(), x._7.toString(), x._8).toString()))
+          
+          val redisConfigStandalone = new RedisConfig(new RedisEndpoint("localhost", 6379, "a43456bc25"))
+          
+          sc.toRedisKV(sc.parallelize(("key1", "val1") :: Nil))(redisConfigStandalone)
+//          sc.toRedisKV(modRDD)(redisConfigStandalone)
+          
+//          val redisServerDnsAddress = "localhost"
+//          val redisPortNumber = 6379
+//          val stringRDD = sc.parallelize(Seq(("StringC", "StringD"), ("String3", "String4")))
+//          sc.toRedisKV(stringRDD, (redisServerDnsAddress, redisPortNumber))
+        }
+        //        ============================
+        writeToRedis(createRDD)
+        val dataFrame = createRDD.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
+        RuleEngine.runRules(dataFrame)
+        val writeSolr = writeToCache(dataFrame)
       }
     })
 
     //    Start the computation
     println("Start application")
     ssc.start()
-    //    Await
     println("StreamingContext started.")
     ssc.awaitTermination()
   }

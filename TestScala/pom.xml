@@ -76,6 +76,11 @@
   		<groupId>log4j</groupId>
   		<artifactId>log4j</artifactId>
   	</dependency>
+  	<!-- https://mvnrepository.com/artifact/RedisLabs/spark-redis -->
+  	<dependency>
+  		<groupId>redis.clients</groupId>
+  		<artifactId>jedis</artifactId>
+  	</dependency>
   </dependencies>
   <dependencyManagement>
   	<dependencies>
@@ -145,6 +150,11 @@
   		  			<groupId>log4j</groupId>
   		  			<artifactId>log4j</artifactId>
   		  			<version>1.2.17</version>
+  		  		</dependency>
+  		  		<dependency>
+  		  			<groupId>redis.clients</groupId>
+  		  			<artifactId>jedis</artifactId>
+  		  			<version>2.9.0</version>
   		  		</dependency>
   	</dependencies>
   </dependencyManagement>
