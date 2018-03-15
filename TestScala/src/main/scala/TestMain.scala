@@ -4,11 +4,11 @@ import com.redislabs.provider.redis._
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.log4j.Logger
 import org.apache.solr.common._
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.{ SparkConf, SparkContext }
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, SQLContext}
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
+import org.apache.spark.sql.{ DataFrame, SQLContext }
+import org.apache.spark.streaming.{ Seconds, StreamingContext }
+import org.apache.spark.streaming.kafka010.{ ConsumerStrategies, KafkaUtils, LocationStrategies }
 
 import scala.collection.JavaConversions.asJavaCollection
 import scala.collection.mutable.ArrayBuffer
@@ -33,11 +33,9 @@ object TestMain {
       .setMaster("local")
       .set("spark.driver.allowMultipleContexts", "true")
       //      redis Ports
-//      .set("redis.host", "127.0.0.1")
-//      .set("redis.port", "6379")
-//      .set("redis.auth", "a43456bc25")
-//      .set("redis.dbNum", "1")
-//      .set("redis.timeout", "1000") 
+      .set("redis.host", "127.0.0.1")
+      .set("redis.port", "6379")
+    //      .set("redis.auth", "a43456bc25")
     val ssc = new StreamingContext(conf, Seconds(20))
     val sc = SparkContext.getOrCreate(conf)
     val sqlContext = SQLContext.getOrCreate(sc)
@@ -118,27 +116,32 @@ object TestMain {
     splitData.foreachRDD({ row =>
       if (!row.isEmpty()) {
         val createRDD = row.map { x => (x(0), x(1), x(2), x(3), x(4), x(5).toInt, x(6).toInt, x(7)) }
-        //        ============================
-        def writeToRedis(dataRDD: RDD[(String, String, String, String, String, Int, Int, String)]) {
-
-          //  Special keys RDD
-          //          val keysRDD = sc.fromRedisKeys(Array("id", "rest"), 5)
-          val modRDD = dataRDD.map(x => (x._1, (x._2, x._3, x._4, x._5, x._6.toString(), x._7.toString(), x._8).toString()))
-          
-          val redisConfigStandalone = new RedisConfig(new RedisEndpoint("localhost", 6379, "a43456bc25"))
-          
-          sc.toRedisKV(sc.parallelize(("key1", "val1") :: Nil))(redisConfigStandalone)
-//          sc.toRedisKV(modRDD)(redisConfigStandalone)
-          
-//          val redisServerDnsAddress = "localhost"
-//          val redisPortNumber = 6379
-//          val stringRDD = sc.parallelize(Seq(("StringC", "StringD"), ("String3", "String4")))
-//          sc.toRedisKV(stringRDD, (redisServerDnsAddress, redisPortNumber))
+        //         Read from Redis zwraca RDD
+        def readFromRedis(dataRDD: RDD[(String, String, String, String, String, Int, Int, String)]): RDD[(String, String)] = {
+          val modRDD = dataRDD.map(x => (x._1))
+          val modArray = modRDD.collect().distinct
+          val oldDataRDD = sc.fromRedisKV(modArray)
+          oldDataRDD
         }
-        //        ============================
-        writeToRedis(createRDD)
+        //  Date to CompareRule
+        val oldDataRDDr = readFromRedis(createRDD)
+        val newDataRDD = createRDD.map(x => (x._1, (x._2, x._3, x._4, x._5, x._6.toString(), x._7.toString(), x._8).toString()))
+        val emptyDataRDD = sc.parallelize(List(("", "")))
+        //  Run CompareRule
+        val backDataFromRule = RuleEngine.runCompareRule(newDataRDD, oldDataRDDr, emptyDataRDD)        
+        val backDataFromRule2 = RuleEngine.runLogRepetitions(backDataFromRule, oldDataRDDr, emptyDataRDD)
+        
+        println("Dane po uruchomienu reguly: ")
+        backDataFromRule2.toDF().show(false)
+        //       Write Data to Redis
+        def writeToRedis(dataRDD: RDD[(String, String)]) {
+          sc.toRedisKV(dataRDD)
+        }
+        //        Zapis do Redisa nowych danych
+        writeToRedis(backDataFromRule2)
+
         val dataFrame = createRDD.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
-        RuleEngine.runRules(dataFrame)
+//        RuleEngine.runRules(dataFrame)
         val writeSolr = writeToCache(dataFrame)
       }
     })
