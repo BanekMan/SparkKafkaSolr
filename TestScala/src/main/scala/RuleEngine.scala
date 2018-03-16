@@ -19,11 +19,22 @@ object RuleEngine {
     countRepetitionId.countSameId(df)
   }
   
+  /**
+   * Running rule to compare all Strings from DataLake
+   */
   def runCompareRule(newData: RDD[(String, String)], oldData: RDD[(String, String)], emptyData: RDD[(String, String)]): RDD[(String, String)] = {
     compareNewOldData.compareRDD(newData, oldData, emptyData)
   }
-  
-  def runLogRepetitions(newData: RDD[(String, String)], oldData: RDD[(String, String)], emptyData: RDD[(String, String)]): RDD[(String, String)]={
+  /**
+   * Running rule to compare ResponseCode
+   */
+  def runCompareResponseCode(newData: RDD[(String, String)], oldData: RDD[(String, String)], emptyData: RDD[(String, String)]): RDD[(String, String)]={
     compareResponseCode.areEqual(newData, oldData, emptyData)
+  }
+  /**
+   * Running rule to compare ResponseSize
+   */
+  def runCompareResponseSize(newData: RDD[(String, String)], oldData: RDD[(String, String)]): RDD[(String, String)]={
+    compareResponseSize.sizeAreEqual(newData, oldData)
   }
 }
