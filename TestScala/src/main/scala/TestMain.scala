@@ -12,6 +12,7 @@ import org.apache.spark.streaming.kafka010.{ ConsumerStrategies, KafkaUtils, Loc
 
 import scala.collection.JavaConversions.asJavaCollection
 import scala.collection.mutable.ArrayBuffer
+//import scala.collection.parallel.ParIterableLike.Fold
 
 object TestMain {
 
@@ -103,7 +104,7 @@ object TestMain {
       solrDocsRDD.foreachPartition { partition =>
         {
           val batch = new ArrayBuffer[SolrInputDocument]()
-          println("Writing odcuments to SOLR")
+          println("Writing documents to SOLR")
           while (partition.hasNext) {
             batch += partition.next()
             WriteDataSolr.client.add(asJavaCollection(batch))
@@ -113,7 +114,9 @@ object TestMain {
       WriteDataSolr.client.commit
       println("Documents have been saved to SOLR.")
     }
+    //   =================
 
+    //   =================
     //    Run WriteToCache foreachRDD
 
     splitData.foreachRDD({ row =>
@@ -127,29 +130,29 @@ object TestMain {
           oldDataRDD
         }
 
-        //  Data for CompareRule
-//        Do oldData trzeba zrobic petle ktora bedzie do kazdej reguly odczytywala na nowo dane 
-        val oldDataRDDr = readFromRedis(createRDD).sortBy(f=> f._1, true)
-        val newDataRDD = createRDD.map(x => (x._1, (x._2, x._3, x._4, x._5, x._6.toString(), x._7.toString(), x._8).toString()))
-        val emptyDataRDD = sc.parallelize(List(("", "")))
-        //  Run CompareRules    
-        def writeToRedis(dataRDD: RDD[(String, String)]) {
-          sc.toRedisKV(dataRDD)
-        }
-        val backDataFromRule = RuleEngine.runCompareRule(newDataRDD, oldDataRDDr, emptyDataRDD)
-        //   Write new Data from Rule 1 to Redis     
-        val backDataFromRule2 = RuleEngine.runCompareResponseCode(backDataFromRule, oldDataRDDr, emptyDataRDD)
-        //   Write new Data from Rule 2 to Redis    
-        val backDataFromRule3 = RuleEngine.runCompareResponseSize(backDataFromRule2, oldDataRDDr)
-        //   Write new Data from Rule 3 to Redis
-        writeToRedis(backDataFromRule3)
-        val dataWriteToSolr = backDataFromRule3.map(f => (f._1, f._2.split(","))).map(f => (f._1, f._2(0), f._2(1), f._2(2), f._2(3), f._2(4), f._2(5), f._2(6)))
-        val dataWriteToSolrInt = dataWriteToSolr.map(f => (f._1, f._2, f._3, f._4, f._5, f._6.toInt, f._7.toInt, f._8))
-        val dataFrameToSolrDoc = dataWriteToSolrInt.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
-        //        RuleEngine.runRules(dataFrame)
-        if (!backDataFromRule3.isEmpty() || backDataFromRule3 == oldDataRDDr) {
-          val writeSolr = writeToCache(dataFrameToSolrDoc)
-        }
+            //  Data for CompareRule
+            val oldDataRDDr = readFromRedis(createRDD).sortBy(f => f._1, true)
+            val newDataRDD = createRDD.map(x => (x._1, (x._2, x._3, x._4, x._5, x._6.toString(), x._7.toString(), x._8).toString()))
+            val emptyDataRDD = sc.parallelize(List(("", "")))
+            //  Run CompareRules
+            def writeToRedis(dataRDD: RDD[(String, String)]) {
+              sc.toRedisKV(dataRDD)
+            }
+            val backDataFromRule = RuleEngine.runCompareRule(newDataRDD, oldDataRDDr, emptyDataRDD)
+            //   Write new Data from Rule 1 to Redis
+            val backDataFromRule2 = RuleEngine.runCompareResponseCode(backDataFromRule, oldDataRDDr, emptyDataRDD)
+            //   Write new Data from Rule 2 to Redis
+            val backDataFromRule3 = RuleEngine.runCompareResponseSize(backDataFromRule2, oldDataRDDr)
+            //   Write new Data from Rule 3 to Redis
+            writeToRedis(backDataFromRule3)
+
+            val dataWriteToSolr = backDataFromRule3.map(f => (f._1, f._2.split(","))).map(f => (f._1, f._2(0), f._2(1), f._2(2), f._2(3), f._2(4), f._2(5), f._2(6)))
+            val dataWriteToSolrInt = dataWriteToSolr.map(f => (f._1, f._2, f._3, f._4, f._5, f._6.toInt, f._7.toInt, f._8))
+            val dataFrameToSolrDoc = dataWriteToSolrInt.toDF("id", "date", "requestType", "requestPage", "httpProtocolVersion", "responseCode", "responseSize", "userAgent")
+            RuleEngine.runRules(dataFrameToSolrDoc)
+            if (!backDataFromRule3.isEmpty() || backDataFromRule3 == oldDataRDDr) {
+              val writeSolr = writeToCache(dataFrameToSolrDoc)
+            }
       }
     })
 

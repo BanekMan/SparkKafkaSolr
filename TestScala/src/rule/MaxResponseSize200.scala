@@ -15,7 +15,7 @@ object MaxResponseSize200 {
 
     val getRowWithMax = filterCode.select("id", "responseSize")
     val maxRow = getRowWithMax.orderBy(desc("responseSize")).first()
-    println("Max respose size for response Code 200 is: " + maxRow.get(1) + " and IP is " + maxRow.get(0))
+    println("Max response size for response Code 200 is: " + maxRow.get(1) + " and IP is " + maxRow.get(0))
 
     //         val countMax = filterCode.agg( max("responseSize")).head()
     //         val colMax = countMax.getInt(0)
